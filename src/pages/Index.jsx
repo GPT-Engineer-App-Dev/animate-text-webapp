@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, VStack, Input, Select, Button, Text, Box, HStack, Heading } from "@chakra-ui/react";
+import React, { useState, useRef, useEffect } from 'react';
+import { Container, VStack, Input, Select, Button, Box, Heading } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { FaRocket } from "react-icons/fa";
 
@@ -8,9 +8,13 @@ const Index = () => {
   const [animationType, setAnimationType] = useState("typing");
   const [fontColor, setFontColor] = useState("#000000");
   const [animatedText, setAnimatedText] = useState("");
+  const canvasRef = useRef(null);
 
   const handleAnimate = () => {
     setAnimatedText(text);
+    if (animationType === "canvas") {
+      drawCanvasAnimation();
+    }
   };
 
   const typingAnimation = {
@@ -35,6 +39,23 @@ const Index = () => {
     },
   };
 
+  const drawCanvasAnimation = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "30px Arial";
+    ctx.fillStyle = fontColor;
+    let x = 0;
+    const interval = setInterval(() => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillText(animatedText.slice(0, x), 50, 50);
+      x++;
+      if (x > animatedText.length) {
+        clearInterval(interval);
+      }
+    }, 100);
+  };
+
   return (
     <Container centerContent maxW="container.md" py={10}>
       <VStack spacing={4} width="100%">
@@ -51,6 +72,7 @@ const Index = () => {
         >
           <option value="typing">Typing</option>
           <option value="pathDrawing">Path Drawing</option>
+          <option value="canvas">Canvas</option>
         </Select>
         <Input
           type="color"
@@ -85,6 +107,9 @@ const Index = () => {
                 {animatedText}
               </motion.text>
             </svg>
+          )}
+          {animationType === "canvas" && (
+            <canvas ref={canvasRef} width="500" height="100"></canvas>
           )}
         </Box>
       </VStack>

@@ -42,18 +42,33 @@ const Index = () => {
   const drawCanvasAnimation = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = "30px Arial";
-    ctx.fillStyle = fontColor;
     let x = 0;
-    const interval = setInterval(() => {
+    let fontSize = 30;
+    let growing = true;
+
+    const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${fontSize}px Arial`;
+      ctx.fillStyle = fontColor;
       ctx.fillText(animatedText.slice(0, x), 50, 50);
+
+      if (growing) {
+        fontSize += 0.5;
+        if (fontSize > 50) growing = false;
+      } else {
+        fontSize -= 0.5;
+        if (fontSize < 30) growing = true;
+      }
+
       x++;
       if (x > animatedText.length) {
-        clearInterval(interval);
+        x = 0;
       }
-    }, 100);
+
+      requestAnimationFrame(draw);
+    };
+
+    draw();
   };
 
   return (
